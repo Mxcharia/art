@@ -1,16 +1,13 @@
 <?php
 
-$hostName= "localhost";
+$hostName = "localhost";
 $dbUser = "root";
-$dbPassword= "";
+$dbPassword = "";
 $dbName = "artgallery";
-$conn = mysqli_connect($hostName,$dbUser, $dbPassword, $dbName);
+$conn = mysqli_connect($hostName, $dbUser, $dbPassword, $dbName);
 
 //checking if it returns false. If so, then the connection is not established
-if(!$conn) {
-    die("Something went wrong");
+if (!$conn) {
+  die("Something went wrong");
 }
 
-
-
-?>

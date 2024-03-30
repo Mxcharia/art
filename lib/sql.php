@@ -1,6 +1,6 @@
 <?php
 
-include '../config/config.php';
+include 'config/config.php';
 
 class mysql extends db_config
 {
@@ -18,7 +18,7 @@ class mysql extends db_config
   {
     parent::__construct(); // Call the parent constructor
 
-    $this->connectionstring = null;
+
     $this->sqlquery = null;
     $this->dataset = null;
 
@@ -26,32 +26,8 @@ class mysql extends db_config
     $this->hostname = $this->servername;
     $this->username = $this->username;
     $this->password = $this->password;
-    $this->dbconnect();
-  }
-  // function mysql()
-  // {
-  //   $this->connectionstring = null;
-  //   $this->sqlquery = null;
-  //   $this->dataset = null;
-  //
-  //
-  //   $dbpara = new config();
-  //   $this->databasename = $dbpara->dbname;
-  //   $this->hostname = $dbpara->servername;
-  //   $this->username = $dbpara->username;
-  //   $this->password = $dbpara->password;
-  //   $dbpara = null;
-  // }
-
-  function dbconnect()
-  {
     $this->connectionstring = mysqli_connect($this->hostname, $this->username, $this->password, $this->databasename);
-    if (!$this->connectionstring) {
-      die("Connection failed: " . mysqli_connect_error());
-    }
-    return $this->connectionstring;
   }
-
 
   function dbdisconnect()
   {
@@ -82,7 +58,6 @@ class mysql extends db_config
     $this->dataset = mysqli_query($this->connectionstring, $this->sqlquery);
     $this->sqlquery = null;
     return $this->dataset;
-    #return $this -> sqlquery;
   }
 
 
@@ -106,20 +81,18 @@ class mysql extends db_config
       }
     }
     $this->sqlquery .= ')';
-    #echo $this -> sqlquery;
     mysqli_query($this->connectionstring, $this->sqlquery);
     return $this->sqlquery;
-    #$this -> sqlquery = null;
   }
 
   function selectfreerun($query)
   {
-    $this->dataset = mysqli_query($query, $this->connectionstring);
+    $this->dataset = mysqli_query($this->connectionstring, $query);
     return $this->dataset;
   }
 
   function freerun($query)
   {
-    return mysqli_query($query, $this->connectionstring);
+    return mysqli_query($this->connectionstring, $query);
   }
 }

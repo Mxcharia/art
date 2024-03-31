@@ -1,5 +1,5 @@
 <?php
-class db_config
+class Db_config
 {
   protected $servername;
   protected $username;

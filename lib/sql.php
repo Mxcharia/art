@@ -1,8 +1,8 @@
 <?php
 
-include 'config/config.php';
+include '/srv/http/art/config/config.php';
 
-class mysql extends db_config
+class Mysql extends Db_config
 {
 
   public $connectionstring;
@@ -47,42 +47,100 @@ class mysql extends db_config
     return $this->dataset;
   }
 
-  function selectwhere($tablename, $rowname, $operator, $value, $valuetype)
+  function selectwhere($tablename, $rowname, $operator, $value)
   {
-    $this->sqlquery = 'select * from ' . $tablename . ' where ' . $rowname . ' ' . $operator . ' ';
-    if ($valuetype == 'int') {
-      $this->sqlquery .= $value;
-    } else if ($valuetype == 'char') {
-      $this->sqlquery .= "'" . $value . "'";
-    }
-    $this->dataset = mysqli_query($this->connectionstring, $this->sqlquery);
-    $this->sqlquery = null;
+    // Validate and sanitize input values
+    $tablename = mysqli_real_escape_string($this->connectionstring, $tablename);
+    $rowname = mysqli_real_escape_string($this->connectionstring, $rowname);
+    $operator = mysqli_real_escape_string($this->connectionstring, $operator);
+    $value = mysqli_real_escape_string($this->connectionstring, $value);
+
+    // Prepare the SQL query using parameterized query
+    $this->sqlquery = "SELECT * FROM $tablename WHERE $rowname $operator ?";
+
+    // Prepare the statement
+    $stmt = mysqli_prepare($this->connectionstring, $this->sqlquery);
+
+    // Bind the parameter
+    mysqli_stmt_bind_param($stmt, 's', $value);
+
+    // Execute the statement
+    mysqli_stmt_execute($stmt);
+
+    // Get the result set
+    $this->dataset = mysqli_stmt_get_result($stmt);
+
+    // Close the statement
+    mysqli_stmt_close($stmt);
+
     return $this->dataset;
   }
 
 
-  function insertinto($tablename, $values)
-  {
-    $i = null;
 
-    $this->sqlquery = 'insert into ' . $tablename . ' values (';
-    $i = 0;
-    while ($values[$i]["val"] != null && $values[$i]["type"] != null) {
-      if ($values[$i]["type"] == "char") {
-        $this->sqlquery .= "'";
-        $this->sqlquery .= $values[$i]["val"];
-        $this->sqlquery .= "'";
-      } else if ($values[$i]["type"] == 'int') {
-        $this->sqlquery .= $values[$i]["val"];
-      }
-      $i++;
-      if ($values[$i]["val"] != null) {
-        $this->sqlquery .= ',';
+  function insertInto($tableName, $values)
+  {
+    if (empty($values) || !is_array($values)) {
+      return false; // Return false if values are empty or not an array
+    }
+
+    // Constructing the prepared statement
+    $columns = array();
+    $placeholders = array();
+    $params = array();
+    $types = '';
+
+    foreach ($values as $column => $data) {
+      $columns[] = $column;
+      $placeholders[] = '?';
+      $params[] = &$data['val']; // Note the use of reference here
+      $types .= isset($data['type']) ? $data['type'] : 's'; // Use the specified type if available, otherwise default to 's' for string
+    }
+
+    $columnsString = implode(',', $columns);
+    $placeholdersString = implode(',', $placeholders);
+    $sql = "INSERT INTO $tableName ($columnsString) VALUES ($placeholdersString)";
+
+    // Prepare the statement
+    $stmt = mysqli_prepare($this->connectionstring, $sql);
+    if (!$stmt) {
+      return false; // Error in preparing the statement
+    }
+
+    // Bind parameters
+    // Add types as the first parameter
+    array_unshift($params, $types);
+
+    // Bind parameters using the ... operator to unpack the array
+    if (!mysqli_stmt_bind_param($stmt, ...$params)) {
+      return false; // Error in binding parameters
+    }
+
+    // Execute the statement
+    $result = mysqli_stmt_execute($stmt);
+
+    if (!$result) {
+      // Check for integrity constraint violation
+      $error_code = mysqli_errno($this->connectionstring);
+      if ($error_code === 1062) {
+        // Duplicate entry error code
+        $error_message = mysqli_error($this->connectionstring);
+        if (strpos($error_message, 'username') !== false) {
+          return "Username already exists";
+        } elseif (strpos($error_message, 'email') !== false) {
+          return "Email already exists";
+        } else {
+          return "Duplicate entry error";
+        }
+      } else {
+        return false; // Other execution error
       }
     }
-    $this->sqlquery .= ')';
-    mysqli_query($this->connectionstring, $this->sqlquery);
-    return $this->sqlquery;
+
+    // Close the statement
+    mysqli_stmt_close($stmt);
+
+    return true; // Insert successful
   }
 
   function selectfreerun($query)

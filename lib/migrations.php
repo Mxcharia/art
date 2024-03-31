@@ -2,7 +2,7 @@
 
 include 'sql.php';
 
-class Migration extends mysql
+class Migration extends Mysql
 {
   // Method to create users table
   public function createUsersTable()
@@ -226,10 +226,10 @@ class Migration extends mysql
   {
     $sql = "CREATE TABLE IF NOT EXISTS `users_order` (
             users_id INT(6) UNSIGNED,
-            order_user_id INT(6) UNSIGNED,
-            PRIMARY KEY (users_id, order_user_id),
+            order_id INT(6) UNSIGNED,
+            PRIMARY KEY (users_id, order_id),
             FOREIGN KEY (users_id) REFERENCES users(id) ON DELETE CASCADE,
-            FOREIGN KEY (order_user_id) REFERENCES `order`(user_id) ON DELETE CASCADE
+            FOREIGN KEY (order_id) REFERENCES `order`(user_id) ON DELETE CASCADE
         )";
 
     if ($this->freerun($sql)) {

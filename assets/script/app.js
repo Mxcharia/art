@@ -49,3 +49,12 @@ function showSlider(type) {
     next.click()
   }, timeAutoNext)
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  var hamburgerMenu = document.querySelector('.hamburger-menu')
+  var navLinks = document.querySelector('.nav-links')
+
+  hamburgerMenu.addEventListener('click', function() {
+    navLinks.classList.toggle('responsive')
+  })
+})

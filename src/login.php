@@ -8,7 +8,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $mysql = new Mysql();
   // Check if the user exists by email
   $result = $mysql->selectwhere('users', 'email', '=', $email, 'char');
-
   if ($result && mysqli_num_rows($result) > 0) {
     $user = mysqli_fetch_assoc($result);
     $hashedPassword = $user['hash_password'];

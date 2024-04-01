@@ -119,7 +119,7 @@ class Mysql extends Db_config
     // Execute the statement
     $result = mysqli_stmt_execute($stmt);
 
-    if (!$result) {
+    if (!$result && $tableName ==  'users') {
       // Check for integrity constraint violation
       $error_code = mysqli_errno($this->connectionstring);
       if ($error_code === 1062) {

@@ -71,6 +71,7 @@ class Migration extends Mysql
             id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             gallery_id INT(6) UNSIGNED NOT NULL,
             name VARCHAR(255),
+            event_image_url VARCHAR(255),
             description VARCHAR(255),
             price FLOAT,
             date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

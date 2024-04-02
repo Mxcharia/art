@@ -32,7 +32,7 @@ class Migration extends Mysql
             location VARCHAR(255),
             description VARCHAR(255),
             date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
         )";
 
     if ($this->freerun($sql)) {
@@ -54,7 +54,7 @@ class Migration extends Mysql
             description VARCHAR(255),
             price FLOAT,
             date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (gallery_id) REFERENCES gallery(id) ON DELETE CASCADE
+            FOREIGN KEY (gallery_id) REFERENCES gallery(id) ON DELETE CASCADE ON UPDATE CASCADE
         )";
 
     if ($this->freerun($sql)) {
@@ -75,7 +75,7 @@ class Migration extends Mysql
             description VARCHAR(255),
             price FLOAT,
             date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (gallery_id) REFERENCES gallery(id) ON DELETE CASCADE
+            FOREIGN KEY (gallery_id) REFERENCES gallery(id) ON DELETE CASCADE ON UPDATE CASCADE
         )";
 
     if ($this->freerun($sql)) {
@@ -95,9 +95,9 @@ class Migration extends Mysql
             art_id INT(6) UNSIGNED,
             quantity INT,
             date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-            FOREIGN KEY (exhibit_id) REFERENCES exhibit(id) ON DELETE CASCADE,
-            FOREIGN KEY (art_id) REFERENCES art(id) ON DELETE CASCADE
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (exhibit_id) REFERENCES exhibit(id) ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (art_id) REFERENCES art(id) ON DELETE CASCADE ON UPDATE CASCADE
         )";
 
     if ($this->freerun($sql)) {
@@ -118,9 +118,9 @@ class Migration extends Mysql
             price INT,
             paid BOOLEAN,
             date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-            FOREIGN KEY (exhibit_id) REFERENCES exhibit(id) ON DELETE CASCADE,
-            FOREIGN KEY (art_id) REFERENCES art(id) ON DELETE CASCADE
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (exhibit_id) REFERENCES exhibit(id) ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (art_id) REFERENCES art(id) ON DELETE CASCADE ON UPDATE CASCADE
         )";
 
     if ($this->freerun($sql)) {
@@ -139,8 +139,8 @@ class Migration extends Mysql
             order_id INT(6) UNSIGNED NOT NULL,
             amount FLOAT NOT NULL,
             date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-            FOREIGN KEY (order_id) REFERENCES `order`(id) ON DELETE CASCADE
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (order_id) REFERENCES `order`(id) ON DELETE CASCADE ON UPDATE CASCADE
         )";
 
     if ($this->freerun($sql)) {
@@ -157,8 +157,8 @@ class Migration extends Mysql
             gallery_id INT(6) UNSIGNED,
             art_gallery_id INT(6) UNSIGNED,
             PRIMARY KEY (gallery_id, art_gallery_id),
-            FOREIGN KEY (gallery_id) REFERENCES gallery(id) ON DELETE CASCADE,
-            FOREIGN KEY (art_gallery_id) REFERENCES art(gallery_id) ON DELETE CASCADE
+            FOREIGN KEY (gallery_id) REFERENCES gallery(id) ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (art_gallery_id) REFERENCES art(gallery_id) ON DELETE CASCADE ON UPDATE CASCADE
         )";
 
     if ($this->freerun($sql)) {
@@ -175,8 +175,8 @@ class Migration extends Mysql
             gallery_id INT(6) UNSIGNED,
             exhibit_gallery_id INT(6) UNSIGNED,
             PRIMARY KEY (gallery_id, exhibit_gallery_id),
-            FOREIGN KEY (gallery_id) REFERENCES gallery(id) ON DELETE CASCADE,
-            FOREIGN KEY (exhibit_gallery_id) REFERENCES exhibit(gallery_id) ON DELETE CASCADE
+            FOREIGN KEY (gallery_id) REFERENCES gallery(id) ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (exhibit_gallery_id) REFERENCES exhibit(gallery_id) ON DELETE CASCADE ON UPDATE CASCADE
         )";
 
     if ($this->freerun($sql)) {
@@ -193,8 +193,8 @@ class Migration extends Mysql
             users_id INT(6) UNSIGNED,
             cart_user_id INT(6) UNSIGNED,
             PRIMARY KEY (users_id, cart_user_id),
-            FOREIGN KEY (users_id) REFERENCES users(id) ON DELETE CASCADE,
-            FOREIGN KEY (cart_user_id) REFERENCES cart(user_id) ON DELETE CASCADE
+            FOREIGN KEY (users_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (cart_user_id) REFERENCES cart(user_id) ON DELETE CASCADE ON UPDATE CASCADE
         )";
 
     if ($this->freerun($sql)) {
@@ -211,8 +211,8 @@ class Migration extends Mysql
             exhibit_id INT(6) UNSIGNED,
             cart_exhibit_id INT(6) UNSIGNED,
             PRIMARY KEY (exhibit_id, cart_exhibit_id),
-            FOREIGN KEY (exhibit_id) REFERENCES exhibit(id) ON DELETE CASCADE,
-            FOREIGN KEY (cart_exhibit_id) REFERENCES cart(exhibit_id) ON DELETE CASCADE
+            FOREIGN KEY (exhibit_id) REFERENCES exhibit(id) ON DELETE CASCADE ON UPDATE CASCADE, 
+            FOREIGN KEY (cart_exhibit_id) REFERENCES cart(exhibit_id) ON DELETE CASCADE ON UPDATE CASCADE
         )";
 
     if ($this->freerun($sql)) {
@@ -229,8 +229,8 @@ class Migration extends Mysql
             users_id INT(6) UNSIGNED,
             order_id INT(6) UNSIGNED,
             PRIMARY KEY (users_id, order_id),
-            FOREIGN KEY (users_id) REFERENCES users(id) ON DELETE CASCADE,
-            FOREIGN KEY (order_id) REFERENCES `order`(user_id) ON DELETE CASCADE
+            FOREIGN KEY (users_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (order_id) REFERENCES `order`(user_id) ON DELETE CASCADE ON UPDATE CASCADE
         )";
 
     if ($this->freerun($sql)) {
@@ -247,8 +247,8 @@ class Migration extends Mysql
             exhibit_id INT(6) UNSIGNED,
             order_exhibit_id INT(6) UNSIGNED,
             PRIMARY KEY (exhibit_id, order_exhibit_id),
-            FOREIGN KEY (exhibit_id) REFERENCES exhibit(id) ON DELETE CASCADE,
-            FOREIGN KEY (order_exhibit_id) REFERENCES `order`(exhibit_id) ON DELETE CASCADE
+            FOREIGN KEY (exhibit_id) REFERENCES exhibit(id) ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (order_exhibit_id) REFERENCES `order`(exhibit_id) ON DELETE CASCADE ON UPDATE CASCADE
         )";
 
     if ($this->freerun($sql)) {
@@ -265,8 +265,8 @@ class Migration extends Mysql
             art_id INT(6) UNSIGNED,
             order_art_id INT(6) UNSIGNED,
             PRIMARY KEY (art_id, order_art_id),
-            FOREIGN KEY (art_id) REFERENCES art(id) ON DELETE CASCADE,
-            FOREIGN KEY (order_art_id) REFERENCES `order`(art_id) ON DELETE CASCADE
+            FOREIGN KEY (art_id) REFERENCES art(id) ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (order_art_id) REFERENCES `order`(art_id) ON DELETE CASCADE ON UPDATE CASCADE
         )";
 
     if ($this->freerun($sql)) {
@@ -283,8 +283,8 @@ class Migration extends Mysql
             users_id INT(6) UNSIGNED,
             transaction_user_id INT(6) UNSIGNED,
             PRIMARY KEY (users_id, transaction_user_id),
-            FOREIGN KEY (users_id) REFERENCES users(id) ON DELETE CASCADE,
-            FOREIGN KEY (transaction_user_id) REFERENCES transaction(user_id) ON DELETE CASCADE
+            FOREIGN KEY (users_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (transaction_user_id) REFERENCES transaction(user_id) ON DELETE CASCADE ON UPDATE CASCADE
         )";
 
     if ($this->freerun($sql)) {
@@ -301,8 +301,8 @@ class Migration extends Mysql
             order_id INT(6) UNSIGNED,
             transaction_order_id INT(6) UNSIGNED,
             PRIMARY KEY (order_id, transaction_order_id),
-            FOREIGN KEY (order_id) REFERENCES `order`(id) ON DELETE CASCADE,
-            FOREIGN KEY (transaction_order_id) REFERENCES transaction(order_id) ON DELETE CASCADE
+            FOREIGN KEY (order_id) REFERENCES `order`(id) ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (transaction_order_id) REFERENCES transaction(order_id) ON DELETE CASCADE ON UPDATE CASCADE
         )";
 
     if ($this->freerun($sql)) {

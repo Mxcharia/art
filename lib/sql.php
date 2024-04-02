@@ -50,6 +50,7 @@ class Mysql extends Db_config
   function selectwhere($tablename, $rowname, $operator, $value)
   {
     // Validate and sanitize input values
+
     $tablename = mysqli_real_escape_string($this->connectionstring, $tablename);
     $rowname = mysqli_real_escape_string($this->connectionstring, $rowname);
     $operator = mysqli_real_escape_string($this->connectionstring, $operator);

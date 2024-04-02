@@ -49,47 +49,8 @@ if (isset($_POST['add_to_cart_ticket'])) {
         ?>
       </div>
     </div>
-    <div class="hamburger-menu">&#9776;</div>
   </header>
 
-  <center>
-    <h2 style="font-size: 25px;">Recent Art pieces</h2>
-  </center>
-  <section class="product">
-    <?php
-    // Retrieve data from the 'art' table
-    $artworks = $service->selectall('art');
-
-    // Check if any artworks were retrieved
-    if ($artworks) {
-      // Loop through each artwork and generate HTML for product container
-      while ($artwork = mysqli_fetch_assoc($artworks)) {
-    ?>
-        <div class="product-container">
-          <a href="http://localhost/art/src/views/product.php?id=<?php echo $artwork['id']; ?>">
-            <div class="product-image">
-              <img src="<?php echo $artwork['art_url']; ?>" alt="<?php echo $artwork['name']; ?>">
-            </div>
-            <div class="product-details">
-              <h2><?php echo $artwork['name']; ?></h2>
-              <div class="additional-details">
-                <p><i><b>Artist name:</b></i> <?php echo $artwork['artist']; ?></p>
-                <p><i><b>Price:</b></i> $<?php echo $artwork['price']; ?></p>
-              </div>
-              <form method="POST">
-                <input type="hidden" name="art_id" value="<?php echo $artwork['id']; ?>">
-                <button type="submit" class="add-to-cart" name="add_to_cart">&#43; Add to Cart</button>
-              </form>
-            </div>
-          </a>
-        </div>
-    <?php
-      }
-    } else {
-      echo "<p>No artworks found.</p>";
-    }
-    ?>
-  </section>
   <center>
     <h2 style="font-size: 25px;">Upcoming Art Exhibits from Galleries</h2>
   </center>

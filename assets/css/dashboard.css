@@ -59,6 +59,11 @@ header {
   text-align:center;
 }
 
+.product-container a{
+  text-decoration:none;
+  color:black;
+}
+
 .hamburger-menu {
   display: none;
 }

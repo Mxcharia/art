@@ -90,44 +90,6 @@ if (isset($_POST['add_to_cart_ticket'])) {
     }
     ?>
   </section>
-  <center>
-    <h2 style="font-size: 25px;">Upcoming Art Exhibits from Galleries</h2>
-  </center>
-  <section class="product">
-    <?php
-    // Retrieve data from the 'exhibit' table
-    $events = $service->selectall('exhibit');
-    // Check if any gallery event were retrieved
-    if ($events) {
-      // Loop through each art gallery event and generate HTML for product container
-      while ($event = mysqli_fetch_assoc($events)) {
-    ?>
-        <div class="product-container">
-          <a href="http://localhost/art/src/views/event.php?id=<?php echo $event['id']; ?>">
-            <div class="product-image">
-              <img src="<?php echo $event['event_image_url']; ?>" alt="<?php echo $event['name']; ?>">
-            </div>
-            <div class="product-details">
-              <h2><?php echo $event['name']; ?></h2>
-              <div class="additional-details">
-                <p><i><b>Description:</b></i> <?php echo $event['description']; ?></p>
-                <p> <i><b>Price:</b></i> $<?php echo $event['price']; ?></p>
-              </div>
-              <form method="POST">
-                <input type="hidden" name="exhibit_id" value="<?php echo $event['id']; ?>">
-                <button type="submit" class="add-to-cart" name="add_to_cart_ticket">&#43; Add Ticket to Cart</button>
-              </form>
-            </div>
-          </a>
-        </div>
-    <?php
-      }
-    } else {
-      echo "<p>No event found.</p>";
-    }
-    ?>
-  </section>
-
   <script src="../assets/script/app.js"></script>
 </body>
 

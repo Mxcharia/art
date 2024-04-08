@@ -1,6 +1,6 @@
 <?php
-include '../lib/sql.php'; // Include the Mysql class file
-include '../lib/constants.php'; // Include the Constants class file
+include '../../lib/sql.php'; // Include the Mysql class file
+include '../../lib/constants.php'; // Include the Constants class file
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   // Retrieve form data
@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
   // Set user type - Assuming this is a regular user registration
-  $userType = Constants::USER;
+  $userType = Constants::GALLERY;
 
   // Prepare the values array for insertion
   $values = array(
@@ -51,8 +51,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/x-icon" href="../assets/images/moon.png" />
-  <link rel="stylesheet" href="../assets/css/register.css">
+  <link rel="icon" type="image/x-icon" href="../../assets/images/moon.png" />
+  <link rel="stylesheet" href="../../assets/css/register.css">
 </head>
 
 <body>
@@ -92,15 +92,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
       <div class="login">
-        <p>Have an account?<a href="login.php">Login</a></p>
-        <p>Are you a gallery owner?<a href="/art/src/gallery/registration.php">Register</a></p>
+        <p>Have an account?<a href="/art/src/login.php">Login</a></p>
       </div>
 
 
     </form>
 
   </div>
-  <script src="../assets/script/form_validation.js"></script>
+  <script src="../../assets/script/form_validation.js"></script>
 </body>
 
 </html>

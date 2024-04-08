@@ -17,7 +17,7 @@ elseif (isset($argv[1]) && $argv[1] === '--migrate-down') {
   echo $seed->seedAllTables();
 } else {
   echo "Usage:\n";
-  echo "php migration.php --migrate-up   : Create all tables\n";
-  echo "php migration.php --migrate-down : Drop all tables {NOTE:This is desctructive and should be used only locally not on production}\n";
-  echo "php migration.php --seed   : Seeds the database\n";
+  echo "php art.php --migrate-up   : Create all tables\n";
+  echo "php art.php --migrate-down : Drop all tables {NOTE:This is desctructive and should be used only locally not on production}\n";
+  echo "php art.php --seed   : Seeds the database\n";
 }

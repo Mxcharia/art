@@ -1,6 +1,5 @@
 const form = document.querySelector('form')
 const email = document.getElementById('email')
-const error = email.nextElementSibling
 const password = document.getElementById('password')
 
 // Regular expression for email validation
@@ -9,6 +8,7 @@ const emailRegExp =
 // Function to validate email
 function validateEmail() {
   const isValid = email.value.length === 0 || emailRegExp.test(email.value)
+  const error = email.nextElementSibling
   if (isValid) {
     email.className = 'form-control'
     document.getElementById('email-error').textContent = ''
@@ -90,6 +90,17 @@ loginButton.addEventListener('click', (event) => {
 
   // If any validation fails, prevent default form submission
   if (!isEmailValid || !areInputsValid) {
+    event.preventDefault() // Prevent default form submission
+  }
+})
+
+const uploadartButton = document.querySelector('.submit-btn[name="submit-art"]')
+uploadartButton.addEventListener('click', (event) => {
+  // Perform validation
+  const areInputsValid = validateInputs()
+
+  // If any validation fails, prevent default form submission
+  if (!areInputsValid) {
     event.preventDefault() // Prevent default form submission
   }
 })

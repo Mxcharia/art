@@ -13,7 +13,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     // Handle reducing quantity action
     $service->reduce_art_to_cart($cart_id, null);
 
-    header("Refresh:0");
     exit(); // Exit after handling the request
   } elseif ($action === 'delete') {
     // Handle delete from cart action

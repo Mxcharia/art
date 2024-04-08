@@ -42,7 +42,6 @@ if (isset($_POST['add_to_cart_ticket'])) {
       <a href="/art/src/views/cart.php"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRuaQCz8N8GNnjjeA7ofPcPQY5k42c0UrfRnbRyUFilgA7MiEGGIZ_-1wUwVd_VzJh_ZqQ&usqp=CAU" alt="Cart"></a>
       <div class="ccalc">
         <?php
-        $user_id = $_SESSION['user']['user_id'];
         $cart_details = $service->selectwhere('cart', 'user_id', '=', $user_id);
         $num_rows = mysqli_num_rows($cart_details);
         echo $num_rows;

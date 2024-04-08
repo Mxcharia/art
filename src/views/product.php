@@ -106,8 +106,9 @@ if (isset($_POST['add_to_cart'])) {
       <a href="/art/src/exhibits.php">Exhibits</a>
       <a href="/art/src/dashboard.php" style="text-decoration: none;color: black;">Home</a>
     </nav>
+
     <div class="cart">
-      <a href="#"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRuaQCz8N8GNnjjeA7ofPcPQY5k42c0UrfRnbRyUFilgA7MiEGGIZ_-1wUwVd_VzJh_ZqQ&usqp=CAU" alt="Cart"></a>
+      <a href="/art/src/views/cart.php"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRuaQCz8N8GNnjjeA7ofPcPQY5k42c0UrfRnbRyUFilgA7MiEGGIZ_-1wUwVd_VzJh_ZqQ&usqp=CAU" alt="Cart"></a>
       <div class="ccalc">
         <?php
         $cart_details = $service->selectwhere('cart', 'user_id', '=', $user_id);

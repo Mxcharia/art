@@ -138,7 +138,7 @@ $gallery = mysqli_fetch_assoc($result);
     <br />
     <h3>
       <?php
-      echo $service->get_total_no_art_pieces();
+      echo $service->get_total_no_orders();
       ?>
     </h3>
   </div>

@@ -29,21 +29,20 @@ class Services extends Mysql
 
   function get_total_no_orders()
   {
-    $result =  $this->selectwhere('gallery', 'user_id', '=', $this->user_id);
-    $gallery = mysqli_fetch_assoc($result);
-    $art_result =  $this->selectwhere('art', 'gallery_id', '=', $gallery['id']);
-    $event_result =  $this->selectwhere('exhibit', 'gallery_id', '=', $gallery['id']);
-    $count  = 0;
-    while ($events = mysqli_fetch_assoc($event_result)) {
-      $result =  $this->selectwhere('order', 'exhibit_id', '=', $events['id']);
-      $event_order_count = mysqli_num_rows($art_result);
-      $count += $event_order_count;
+    $gallery_result = $this->selectwhere('gallery', 'user_id', '=', $this->user_id);
+    $gallery = mysqli_fetch_assoc($gallery_result);
+    $count = 0;
+    $exhibit_result = $this->selectwhere('exhibit', 'gallery_id', '=', $gallery['id']);
+    while ($exhibit = mysqli_fetch_assoc($exhibit_result)) {
+      $order_result = $this->selectwhere('`order`', 'exhibit_id', '=', $exhibit['id']);
+      $count += mysqli_num_rows($order_result);
     }
-    while ($arts = mysqli_fetch_assoc($art_result)) {
-      $result =  $this->selectwhere('order', 'art_id', '=', $arts['id']);
-      $art_order_count = mysqli_num_rows($art_result);
-      $count += $art_order_count;
+    $art_result = $this->selectwhere('art', 'gallery_id', '=', $gallery['id']);
+    while ($art = mysqli_fetch_assoc($art_result)) {
+      $order_result = $this->selectwhere('`order`', 'art_id', '=', $art['id']);
+      $count += mysqli_num_rows($order_result);
     }
+
     return $count;
   }
 

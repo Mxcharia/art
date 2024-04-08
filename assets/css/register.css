@@ -1,0 +1,132 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+*{
+    margin:0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body{
+    min-height: 100vh;
+    background: #eee;
+    display: flex;
+    font-family:Poppins;
+}
+.form-container{
+    margin: auto;
+    width: 500px;
+    max-width: 90%;
+}
+.form-container form{
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0,0,0,.3);
+
+}
+
+.form-container form h1{
+    text-align: center;
+    margin-bottom: 24px;
+    color: black;
+}
+
+.form-container .form-group{
+    padding: 15px;
+}
+.form-container .form-group input{
+    margin-top: 5px;
+}
+
+.form-container form .form-control{
+    width: 100%;
+    height: 40px;
+    background: #eef1f0;
+    border-radius: 10px;
+    border: 1px solid silver;
+    padding: 0 10px;
+    outline: none; 
+}
+
+
+.form-container form .form-control-select{
+    width: 100%;
+    height: 30px;
+    background: #eef1f0;
+    border-radius: 10px;
+    border: 1px solid silver;
+    padding: 0 10px;
+    outline: none; 
+}
+
+.form-container form .form-control:focus{
+    outline: 1px solid #A68A53;
+}
+
+.form-container form .submit-btn{
+    margin-left: 50%;
+    margin-top:20px;
+    transform: translate(-50%);
+    width: 120px;
+    height:40px;
+    outline: none;
+    border: none;
+    background: black;
+    cursor: pointer;
+    font-size: 16px;
+    text-transform: uppercase;
+    color: white;
+    border-radius: 5px;
+    transition: .3s;
+}
+.form-container form .submit-btn:hover{
+    opacity: .9;
+}
+.form-container form .login{
+    text-align: center;
+    margin-top: 20px;
+}
+.form-container form .login a{
+    text-decoration: none;
+    color: #f1683a;
+}
+
+.form-group-image {
+  border: 2px dotted #ccc; /* Dotted border */
+  border-radius: 20px; /* Border radius */
+  padding: 20px; /* Adjust padding as needed */
+  display: inline-block; /* Display as inline-block to contain width */
+}
+
+#file-input {
+  display: none; /* Hide the file input */
+}
+
+/* Additional styling for label and icon if needed */
+label {
+  cursor: pointer; /* Show pointer cursor when hovering over label */
+}
+
+.fa-upload {
+  color: #555; /* Icon color */
+}
+.form-group-image>input{
+  display:none;
+}
+
+/* This is the style of our error messages */
+.error {
+  width: 50%;
+  font-size: 14px; /* Increase font size for better readability */
+  color: white;
+  background-color: #c51244;
+  border-radius: 5px; /* Add border radius for rounded corners */
+  margin-top: 10px;
+  text-align: center; /* Center-align the text */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display:block;
+}
+
+.error.active {
+  padding: 0.3em;
+}

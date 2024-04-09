@@ -154,4 +154,33 @@ class Mysql extends Db_config
   {
     return mysqli_query($this->connectionstring, $query);
   }
+  function selectall_sorted($tablename, $sort_column, $sort_order = 'ASC')
+  {
+    $sort_order = strtoupper($sort_order); // Ensure sort order is uppercase
+
+    // Validate sort order
+    if ($sort_order != 'ASC' && $sort_order != 'DESC') {
+      $sort_order = 'ASC'; // Default to ascending order if invalid sort order provided
+    }
+
+    $this->sqlquery = "SELECT * FROM $this->databasename.$tablename ORDER BY $sort_column $sort_order";
+    $this->dataset = mysqli_query($this->connectionstring, $this->sqlquery);
+    return $this->dataset;
+  }
+
+
+  function delete($tablename, $condition)
+  {
+    $tablename = mysqli_real_escape_string($this->connectionstring, $tablename);
+    $condition = mysqli_real_escape_string($this->connectionstring, $condition);
+
+    $this->sqlquery = "DELETE FROM $tablename WHERE $condition";
+    $result = mysqli_query($this->connectionstring, $this->sqlquery);
+
+    if ($result) {
+      return true; // Deletion successful
+    } else {
+      return false; // Error in deletion
+    }
+  }
 }

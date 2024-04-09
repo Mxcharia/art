@@ -6,6 +6,7 @@ class Services extends Mysql
   public $user_id;
   function __construct($user_id)
   {
+    // initializes Mysql
     parent::__construct();
 
     $this->user_id = $user_id;
@@ -45,7 +46,13 @@ class Services extends Mysql
 
     return $count;
   }
-
+  function get_total_no_orders_admin()
+  {
+    $count = 0;
+    $order_result = $this->selectall('`order`');
+    $count += mysqli_num_rows($order_result);
+    return $count;
+  }
   function get_total_no_earnings()
   {
     $result =  $this->selectwhere('gallery', 'user_id', '=', $this->user_id);
@@ -65,6 +72,15 @@ class Services extends Mysql
       $order_art = mysqli_fetch_assoc($result);
       $order_result = $this->selectwhere('transaction', 'order_id', '=', $order_art['id']);
       $order = mysqli_fetch_assoc($order_result);
+      $count += $order['amount'];
+    }
+    return $count;
+  }
+  function get_total_no_earnings_admin()
+  {
+    $count = 0;
+    $order_result = $this->selectall('transaction');
+    while ($order = mysqli_fetch_assoc($order_result)) {
       $count += $order['amount'];
     }
     return $count;
@@ -90,11 +106,23 @@ class Services extends Mysql
     $art_count = mysqli_num_rows($art_result);
     return $art_count;
   }
+  function get_total_no_art_pieces_admin()
+  {
+    $art_result =  $this->selectall('art');
+    $art_count = mysqli_num_rows($art_result);
+    return $art_count;
+  }
   function get_total_no_events()
   {
     $result =  $this->selectwhere('gallery', 'user_id', '=', $this->user_id);
     $gallery = mysqli_fetch_assoc($result);
     $event_result =  $this->selectwhere('exhibit', 'gallery_id', '=', $gallery['id']);
+    $event_count = mysqli_num_rows($event_result);
+    return $event_count;
+  }
+  function get_total_no_events_admin()
+  {
+    $event_result =  $this->selectall('exhibit');
     $event_count = mysqli_num_rows($event_result);
     return $event_count;
   }

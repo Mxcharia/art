@@ -66,6 +66,7 @@
       <h1>Fusion</h1>
     </div>
     <nav class="nav-links">
+      <a href="/art/src/logout.php">Logout</a>
       <a href="event_upload.php">New Event</a>
       <a href="art_upload.php">Upload Art</a>
       <a href="/art/src/gallery/dashboard.php">Home</a>

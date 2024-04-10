@@ -5,10 +5,11 @@ if (!isset($_SESSION['user']))
 include '../../lib/services.php';
 $user_id = $_SESSION['user']['user_id'];
 $service = new Services($user_id);
+$total_amount  =  $service->get_cart_total();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
   $cart_id = $_POST['cart_id'];
   $action = $_POST['action'];
-
   if ($action === 'reduce') {
     // Handle reducing quantity action
     $service->reduce_art_to_cart($cart_id, null);
@@ -18,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     // Handle delete from cart action
 
     $service->delete_art_from_cart($cart_id);
+
     header("Refresh:0");
     exit(); // Exit after handling the request
   }
@@ -34,6 +36,53 @@ $cart_details = $service->selectwhere('cart', 'user_id', '=', $user_id);
 </head>
 
 <style>
+  .modal {
+    display: none;
+    /* Hidden by default */
+    position: fixed;
+    /* Stay in place */
+    z-index: 1;
+    /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    /* Full width */
+    height: 100%;
+    /* Full height */
+    overflow: auto;
+    /* Enable scroll if needed */
+    background-color: rgb(0, 0, 0);
+    /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4);
+    /* Black w/ opacity */
+  }
+
+  /* Modal Content/Box */
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    /* Could be more or less, depending on screen size */
+  }
+
+  /* Close Button */
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
   #cartcontainer {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -45,7 +94,7 @@ $cart_details = $service->selectwhere('cart', 'user_id', '=', $user_id);
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-top: 30px;
+    margin-top: 70px;
   }
 
   .cartitem img {
@@ -92,6 +141,35 @@ $cart_details = $service->selectwhere('cart', 'user_id', '=', $user_id);
     color: white;
   }
 
+  #checkoutBtn {
+    float: right;
+    margin-top: 20px;
+    transform: translate(-50%);
+    width: 120px;
+    height: 40px;
+    outline: none;
+    border: none;
+    background: black;
+    cursor: pointer;
+    font-size: 16px;
+    color: white;
+    border-radius: 5px;
+    transition: .3s;
+  }
+
+  #checkBTN {
+    width: 120px;
+    height: 40px;
+    outline: none;
+    border: none;
+    background: black;
+    cursor: pointer;
+    font-size: 16px;
+    color: white;
+    border-radius: 5px;
+    transition: .3s;
+  }
+
   .reducebtn:hover,
   .deletebtn:hover {
     background-color: #333;
@@ -107,10 +185,11 @@ $cart_details = $service->selectwhere('cart', 'user_id', '=', $user_id);
     </a>
   </div>
   <nav class="nav-links">
-    <a href="#">Galleries</a>
+    <a href="/art/src/logout.php">Logout</a>
     <a href="/art/src/art.php">Art</a>
+    <a href="/art/src/views/orders.php">Orders</a>
     <a href="/art/src/exhibits.php">Exhibits</a>
-    <a href="/art/src/dashboard.php" style="text-decoration: none;color: black;">Home</a>
+    <a href="/art/src/dashboard.php">Home</a>
   </nav>
   <div class="cart">
     <a href="#"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRuaQCz8N8GNnjjeA7ofPcPQY5k42c0UrfRnbRyUFilgA7MiEGGIZ_-1wUwVd_VzJh_ZqQ&usqp=CAU" alt="Cart"></a>
@@ -124,6 +203,7 @@ $cart_details = $service->selectwhere('cart', 'user_id', '=', $user_id);
   </div>
   <div class="hamburger-menu">&#9776;</div>
 </header>
+<button id="checkoutBtn" onclick="checkout()">Checkout</button>
 
 <div id="cartcontainer">
   <?php
@@ -190,41 +270,95 @@ $cart_details = $service->selectwhere('cart', 'user_id', '=', $user_id);
       </div>
     </div>
   <?php } ?>
-</div>
+  <div id="checkoutModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h2>Checkout</h2>
+      <form id="contactForm">
+        <label for="contact">Contact:</label>
+        <input type="number" id="contact" name="contact" required><br><br>
+        <button id="checkBTN" type="submit">Submit</button>
+      </form>
+      <b>
+        <p>Total Amount you will pay: $<span id="totalAmount"></span></p>
+      </b>
+    </div>
+  </div>
 
 
-<script>
-  function reduceQuantity(cartId) {
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState === XMLHttpRequest.DONE) {
-        if (xhr.status === 200) {
-          // Update UI if request is successful
-          location.reload();
-        } else {
-          console.error('Error: ' + xhr.status);
+  <script>
+    function reduceQuantity(cartId) {
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            // Update UI if request is successful
+            location.reload();
+          } else {
+            console.error('Error: ' + xhr.status);
+          }
         }
-      }
-    };
-    xhr.open('POST', 'cart.php', true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.send('cart_id=' + cartId + '&action=reduce');
-  }
+      };
+      xhr.open('POST', 'cart.php', true);
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+      xhr.send('cart_id=' + cartId + '&action=reduce');
+    }
 
-  function deleteFromCart(cartId) {
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState === XMLHttpRequest.DONE) {
-        if (xhr.status === 200) {
-          // Update UI if request is successful
-          location.reload();
-        } else {
-          console.error('Error: ' + xhr.status);
+    function deleteFromCart(cartId) {
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            // Update UI if request is successful
+            location.reload();
+          } else {
+            console.error('Error: ' + xhr.status);
+          }
         }
-      }
-    };
-    xhr.open('POST', 'cart.php', true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.send('cart_id=' + cartId + '&action=delete');
-  }
-</script>
+      };
+      xhr.open('POST', 'cart.php', true);
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+      xhr.send('cart_id=' + cartId + '&action=delete');
+    }
+
+    function checkout() {
+      openModal()
+    }
+
+    function openModal() {
+      var modal = document.getElementById('checkoutModal');
+      modal.style.display = 'block';
+
+      // Calculate and display total amount
+      var totalAmount = getTotalAmount()
+      document.getElementById('totalAmount').textContent = totalAmount;
+    }
+
+    // Function to close the modal
+    function closeModal() {
+      var modal = document.getElementById('checkoutModal');
+      modal.style.display = 'none';
+    }
+
+    // Function to calculate total amount
+    function getTotalAmount() {
+      return <?php echo $total_amount; ?>;
+    }
+
+
+    // Function to handle form submission (you can adjust this according to your needs)
+    document.getElementById('contactForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      var contact = document.getElementById('contact').value;
+      // Send the contact information to the server or process it as needed
+      var formData = new FormData();
+      formData.append('contact', contact);
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '../checkout.php', true);
+      xhr.onload = function() {
+        // Handle the response from the server
+      };
+      xhr.send(formData);
+      closeModal();
+    });
+  </script>

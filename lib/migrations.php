@@ -115,6 +115,7 @@ class Migration extends Mysql
             user_id INT(6) UNSIGNED,
             exhibit_id INT(6) UNSIGNED,
             art_id INT(6) UNSIGNED,
+            quantity INT,
             price INT,
             paid BOOLEAN,
             date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -311,6 +312,24 @@ class Migration extends Mysql
       return "Error creating table: " . mysqli_error($this->connectionstring);
     }
   }
+  public function createStkTransactionsTable()
+  {
+    $sql = "CREATE TABLE IF NOT EXISTS `stk_transactions` (
+            id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            order_no VARCHAR(255) NOT NULL,
+            amount FLOAT NOT NULL,
+            phone VARCHAR(20) NOT NULL,
+            CheckoutRequestID VARCHAR(255) NOT NULL,
+            MerchantRequestID VARCHAR(255) NOT NULL,
+            date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )";
+
+    if ($this->freerun($sql)) {
+      return "Table stk_transactions created successfully";
+    } else {
+      return "Error creating table: " . mysqli_error($this->connectionstring);
+    }
+  }
   // Method to create all tables
   public function createAllTables()
   {
@@ -333,7 +352,8 @@ class Migration extends Mysql
       "createExhibitOrderTable",
       "createArtOrderTable",
       "createUsersTransactionTable",
-      "createOrderTransactionTable"
+      "createOrderTransactionTable",
+      "createStkTransactionsTable"
     );
 
     // Iterate through table creation functions and execute them
@@ -351,6 +371,7 @@ class Migration extends Mysql
 
     // Array to store table names in reverse order to drop child tables first
     $tableNames = array(
+      "stk_transactions",
       "order_transaction",
       "users_transaction",
       "art_order",

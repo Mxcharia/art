@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../../assets/css/dashboard.css" />
   <link rel="icon" type="image/x-icon" href="../../assets/images/moon.png" />
-  <title>Art Summary</title>
+  <title>Users Summary</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -54,19 +54,6 @@
     td:last-child {
       text-align: center;
     }
-
-    .delete-btn {
-      background-color: #ff6347;
-      color: #fff;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .delete-btn:hover {
-      background-color: #ff3b20;
-    }
   </style>
 </head>
 
@@ -82,25 +69,21 @@
       <a href="/art/src/logout.php">Logout</a>
       <a href="events.php">Event Reports</a>
       <a href="arts.php">Art Reports</a>
-      <a href="users.php">Users Reports</a>
       <a href="orders.php">Orders Reports</a>
+      <a href="users.php">Users Reports</a>
       <a href="/art/src/admin/dashboard.php">Home</a>
     </nav>
   </header>
 
-  <h2>Art Report</h2>
+  <h2>Users Report</h2>
   <table>
     <thead>
       <tr>
-        <th>Art ID</th>
-        <th>Gallery ID</th>
-        <th>Name</th>
-        <th>Art Image</th>
-        <th>Artist</th>
-        <th>Description</th>
-        <th>Price</th>
-        <th>Date Created</th>
-        <th>Action</th>
+        <th>User ID</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>User Type</th>
+        <th>Created Date</th>
       </tr>
     </thead>
     <tbody>
@@ -111,37 +94,47 @@
         header("Location: /art/src/login.php");
       include '../../lib/services.php';
       $user_id = $_SESSION['user']['user_id'];
+      class Constants
+      {
+        // represent admins
+        const ADMIN = 1;
+        // represent users 
+        const USER = 2;
+        // represent users that are gallery owners
+        const GALLERY = 3;
 
+        public static function getUserTypeName($userType)
+        {
+          switch ($userType) {
+            case self::ADMIN:
+              return 'Admin';
+            case self::USER:
+              return 'User';
+            case self::GALLERY:
+              return 'Gallery Owner';
+            default:
+              return 'Unknown';
+          }
+        }
+      }
       // Create an instance of your service class
       $services = new Services($user_id);
-      $result = $services->selectall('art');
+      $result = $services->selectall('users');
 
       // Check if there is data available
-      while ($art = mysqli_fetch_assoc($result)) {
+      while ($user = mysqli_fetch_assoc($result)) {
         // Output data in a table row
         echo "<tr>";
-        echo "<td>" . $art['id'] . "</td>";
-        echo "<td>" . $art['gallery_id'] . "</td>";
-        echo "<td>" . $art['name'] . "</td>";
-        echo "<td><img src='" . $art['art_url'] . "' alt='Art Image' style='max-width: 100px; max-height: 100px;'></td>";
-        echo "<td>" . $art['artist'] . "</td>";
-        echo "<td>" . $art['description'] . "</td>";
-        echo "<td>$" . $art['price'] . "</td>";
-        echo "<td>" . $art['date_created'] . "</td>";
-        echo "<td><button class='delete-btn' onclick='confirmDelete(" . $art['id'] . ")'>Delete</button></td>";
+        echo "<td>" . $user['id'] . "</td>";
+        echo "<td>" . $user['username'] . "</td>";
+        echo "<td>" . $user['email'] . "</td>";
+        echo "<td>" . Constants::getUserTypeName($user['user_type']) . "</td>";
+        echo "<td>" . $user['created_date'] . "</td>";
         echo "</tr>";
       }
       ?>
     </tbody>
   </table>
-
-  <script>
-    function confirmDelete(artId) {
-      if (confirm("Are you sure you want to delete this art?")) {
-        window.location.href = "delete_art.php?id=" + artId; // Redirect to delete script with art ID
-      }
-    }
-  </script>
 </body>
 
 </html>

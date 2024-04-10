@@ -108,7 +108,9 @@ $gallery = mysqli_fetch_assoc($result);
     <h1>Fusion</h1>
   </div>
   <nav class="nav-links">
+    <a href="/art/src/logout.php">Logout</a>
     <a href="events.php">Event Reports</a>
+    <a href="users.php">Users Reports</a>
     <a href="arts.php">Art Reports</a>
     <a href="orders.php">Orders Reports</a>
     <a href="/art/src/admin/dashboard.php">Home</a>
@@ -189,7 +191,7 @@ $gallery = mysqli_fetch_assoc($result);
       if ($art_counter >= 8) break; // Stop loop after six iterations
   ?>
       <div class="product-container">
-        <a href="http://localhost/art/src/gallery/order.php?artid=<?php echo $artwork['id']; ?>">
+        <a href="order.php?artid=<?php echo $artwork['id']; ?>">
           <div class="product-image">
             <img src="<?php echo $artwork['art_url']; ?>" alt="<?php echo $artwork['name']; ?>">
           </div>
@@ -202,8 +204,8 @@ $gallery = mysqli_fetch_assoc($result);
           </div>
         </a>
         <div class="sm">
-          <a href="../gallery/art.php?id=<?php echo $artwork['id']; ?>"><button class="edit">Edit</button></a>
-          <a href="../gallery/order.php?artid=<?php echo $artwork['id']; ?>"><button class="view-orders">View Orders</button></a>
+          <a href="art.php?id=<?php echo $artwork['id']; ?>"><button class="edit">Edit</button></a>
+          <a href="order.php?artid=<?php echo $artwork['id']; ?>"><button class="view-orders">View Orders</button></a>
         </div>
       </div>
   <?php
@@ -231,7 +233,7 @@ $gallery = mysqli_fetch_assoc($result);
       if ($event_counter >= 8) break; // Stop loop after eight iterations
   ?>
       <div class="product-container">
-        <a href="http://localhost/art/src/gallery/order.php?exhibitid=<?php echo $event['id']; ?>">
+        <a href="order.php?exhibitid=<?php echo $event['id']; ?>">
           <div class="product-image">
             <img src="<?php echo $event['event_image_url']; ?>" alt="<?php echo $event['name']; ?>">
           </div>
@@ -245,8 +247,8 @@ $gallery = mysqli_fetch_assoc($result);
           </div>
         </a>
         <div class="sm">
-          <a href="../gallery/event.php?id=<?php echo $event['id']; ?>"><button class="edit">Edit</button></a>
-          <a href="../gallery/order.php?exhibitid=<?php echo $event['id']; ?>"><button class="view-orders">View Orders</button></a>
+          <a href="event.php?id=<?php echo $event['id']; ?>"><button class="edit">Edit</button></a>
+          <a href="order.php?exhibitid=<?php echo $event['id']; ?>"><button class="view-orders">View Orders</button></a>
         </div>
 
 

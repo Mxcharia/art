@@ -1,3 +1,12 @@
+<?php
+session_start();
+if (!isset($_SESSION['user']))
+  header("Location: /art/src/login.php");
+include '../../lib/services.php';
+$user_id = $_SESSION['user']['user_id'];
+$services = new Services($user_id);
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -67,12 +76,22 @@
     </div>
     <nav class="nav-links">
       <a href="/art/src/logout.php">Logout</a>
-      <a href="events.php">Event Reports</a>
-      <a href="arts.php">Art Reports</a>
-      <a href="orders.php">Orders Reports</a>
-      <a href="users.php">Users Reports</a>
-      <a href="/art/src/admin/dashboard.php">Home</a>
+      <a href="/art/src/art.php">Art</a>
+      <a href="/art/src/views/orders.php">Orders</a>
+      <a href="/art/src/exhibits.php">Exhibits</a>
+      <a href="/art/src/dashboard.php">Home</a>
     </nav>
+    <div class="cart">
+      <a href="/art/src/views/cart.php"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRuaQCz8N8GNnjjeA7ofPcPQY5k42c0UrfRnbRyUFilgA7MiEGGIZ_-1wUwVd_VzJh_ZqQ&usqp=CAU" alt="Cart"></a>
+      <div class="ccalc">
+        <?php
+        $cart_details = $services->selectwhere('cart', 'user_id', '=', $user_id);
+        $num_rows = mysqli_num_rows($cart_details);
+        echo $num_rows;
+        ?>
+      </div>
+    </div>
+
   </header>
 
   <h2>Orders Report</h2>
@@ -89,16 +108,9 @@
     </thead>
     <tbody>
       <?php
-      // Include your PHP script
-      session_start();
-      if (!isset($_SESSION['user']))
-        header("Location: /art/src/login.php");
-      include '../../lib/services.php';
-      $user_id = $_SESSION['user']['user_id'];
+      $query = "SELECT * FROM `order` WHERE user_id = $user_id AND paid = 1";
 
-      // Create an instance of your service class
-      $services = new Services($user_id);
-      $result = $services->selectall('`order`');
+      $result = $services->freerun($query);
 
       // Check if there is data available
       while ($order_art = mysqli_fetch_assoc($result)) {
@@ -115,6 +127,41 @@
       ?>
     </tbody>
   </table>
+
+  <h2>Uncompleted Orders Report</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>Art ID</th>
+        <th>Exhibit ID</th>
+        <th>Price</th>
+        <th>Paid</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php
+      $query = "SELECT * FROM `order` WHERE user_id = $user_id AND paid = 0";
+
+      $result = $services->freerun($query);
+
+      // Check if there is data available
+      while ($order_art = mysqli_fetch_assoc($result)) {
+        // Output data in a table row
+        echo "<tr>";
+        echo "<td>" . $order_art['id'] . "</td>";
+        echo "<td>" . $order_art['art_id'] . "</td>";
+        echo "<td>" . $order_art['exhibit_id'] . "</td>";
+        echo "<td>$" . $order_art['price'] . "</td>";
+        echo "<td>" . ($order_art['paid'] == 1 ? 'Yes' : 'No') . "</td>";
+        echo "<td>" . $order_art['date_created'] . "</td>";
+        echo "</tr>";
+      }
+      ?>
+    </tbody>
+  </table>
+
 </body>
 
 </html>

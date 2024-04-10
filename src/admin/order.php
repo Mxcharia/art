@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../../assets/css/dashboard.css" />
   <link rel="icon" type="image/x-icon" href="../../assets/images/moon.png" />
-  <title>Art Summary</title>
+  <title>Order Summary</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -54,19 +54,6 @@
     td:last-child {
       text-align: center;
     }
-
-    .delete-btn {
-      background-color: #ff6347;
-      color: #fff;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .delete-btn:hover {
-      background-color: #ff3b20;
-    }
   </style>
 </head>
 
@@ -88,19 +75,32 @@
     </nav>
   </header>
 
-  <h2>Art Report</h2>
+  <h2>Order Summary</h2>
   <table>
     <thead>
       <tr>
-        <th>Art ID</th>
-        <th>Gallery ID</th>
-        <th>Name</th>
-        <th>Art Image</th>
-        <th>Artist</th>
-        <th>Description</th>
+        <th>Order ID</th>
+        <?php
+        // Check if either 'exhibitid' or 'artid' parameter is set in the URL
+        if (isset($_GET['exhibitid'])) {
+          // Sanitize the input to prevent SQL injection or other attacks
+          $exhibit_id = filter_input(INPUT_GET, 'exhibitid', FILTER_SANITIZE_NUMBER_INT);
+          // If 'exhibitid' is set, display Exhibit ID column
+          echo "<th>Exhibit ID</th>";
+        } elseif (isset($_GET['artid'])) {
+          // Sanitize the input to prevent SQL injection or other attacks
+          $art_id = filter_input(INPUT_GET, 'artid', FILTER_SANITIZE_NUMBER_INT);
+          // If 'artid' is set, display Art ID column
+          echo "<th>Art ID</th>";
+        } else {
+          // If neither 'exhibitid' nor 'artid' parameter is set, redirect to the dashboard
+          header("Location: /art/src/dashboard.php");
+          exit(); // Stop further execution
+        }
+        ?>
         <th>Price</th>
-        <th>Date Created</th>
-        <th>Action</th>
+        <th>Paid</th>
+        <th>Date</th>
       </tr>
     </thead>
     <tbody>
@@ -114,34 +114,32 @@
 
       // Create an instance of your service class
       $services = new Services($user_id);
-      $result = $services->selectall('art');
+      if ($exhibit_id) {
+        $order_art = $services->get_order_events_by_gallery($exhibit_id);
+      } elseif ($art_id) {
+        $order_art = $services->get_order_art_by_gallery($art_id);
+      }
 
       // Check if there is data available
-      while ($art = mysqli_fetch_assoc($result)) {
+      if ($order_art) {
         // Output data in a table row
         echo "<tr>";
-        echo "<td>" . $art['id'] . "</td>";
-        echo "<td>" . $art['gallery_id'] . "</td>";
-        echo "<td>" . $art['name'] . "</td>";
-        echo "<td><img src='" . $art['art_url'] . "' alt='Art Image' style='max-width: 100px; max-height: 100px;'></td>";
-        echo "<td>" . $art['artist'] . "</td>";
-        echo "<td>" . $art['description'] . "</td>";
-        echo "<td>$" . $art['price'] . "</td>";
-        echo "<td>" . $art['date_created'] . "</td>";
-        echo "<td><button class='delete-btn' onclick='confirmDelete(" . $art['id'] . ")'>Delete</button></td>";
+        echo "<td>" . $order_art['id'] . "</td>";
+        if (isset($exhibit_id)) {
+          echo "<td>" . $order_art['exhibit_id'] . "</td>";
+        } elseif (isset($art_id)) {
+          echo "<td>" . $order_art['art_id'] . "</td>";
+        }
+        echo "<td>$" . $order_art['price'] . "</td>";
+        echo "<td>" . ($order_art['paid'] == 1 ? 'Yes' : 'No') . "</td>";
+        echo "<td>" . $order_art['date_created'] . "</td>";
         echo "</tr>";
+      } else {
+        echo "<tr><td colspan='5'>No data available</td></tr>";
       }
       ?>
     </tbody>
   </table>
-
-  <script>
-    function confirmDelete(artId) {
-      if (confirm("Are you sure you want to delete this art?")) {
-        window.location.href = "delete_art.php?id=" + artId; // Redirect to delete script with art ID
-      }
-    }
-  </script>
 </body>
 
 </html>

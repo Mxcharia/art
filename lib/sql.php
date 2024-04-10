@@ -183,4 +183,12 @@ class Mysql extends Db_config
       return false; // Error in deletion
     }
   }
+  function updateOrderStatus($status, $orderNo)
+  {
+    $stmt = $this->connectionstring->prepare("UPDATE `order` SET paid = ? WHERE id = ?");
+    $stmt->bind_param("ss", $status, $orderNo);
+    $result = $stmt->execute();
+    $stmt->close();
+    return $result;
+  }
 }

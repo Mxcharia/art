@@ -33,8 +33,9 @@ if (isset($_POST['add_to_cart_ticket'])) {
       <h1>Fusion</h1>
     </div>
     <nav class="nav-links">
-      <a href="#">Galleries</a>
+      <a href="/art/src/logout.php">Logout</a>
       <a href="/art/src/art.php">Art</a>
+      <a href="/art/src/views/orders.php">Orders</a>
       <a href="/art/src/exhibits.php">Exhibits</a>
       <a href="/art/src/dashboard.php">Home</a>
     </nav>

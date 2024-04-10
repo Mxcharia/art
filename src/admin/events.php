@@ -79,8 +79,10 @@
       <h1>Fusion</h1>
     </div>
     <nav class="nav-links">
+      <a href="/art/src/logout.php">Logout</a>
       <a href="events.php">Event Reports</a>
       <a href="arts.php">Art Reports</a>
+      <a href="users.php">Users Reports</a>
       <a href="orders.php">Orders Reports</a>
       <a href="/art/src/admin/dashboard.php">Home</a>
     </nav>

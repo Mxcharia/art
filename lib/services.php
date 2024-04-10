@@ -337,4 +337,234 @@ class Services extends Mysql
 
     return $result; // Return true if update was successful, false otherwise
   }
+  protected function curlRequest($url, $headers = [], $data = null)
+  {
+    $ch = curl_init($url);
+    $headers = (array) $headers;
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_HEADER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    if ($data !== null) {
+      curl_setopt($ch, CURLOPT_POST, true);
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    }
+
+    // Execute the curl request
+    $response = curl_exec($ch);
+
+    // Log request URL
+    error_log("cURL Request URL: $url  = = = " . print_r(curl_getinfo($ch), true));
+
+    if (!empty($headers)) {
+      $headerString = implode(', ', $headers);
+      error_log("cURL Request Headers: $headerString");
+    }
+    if ($data !== null) {
+      error_log("cURL Request Data: " . print_r($data, true));
+    }
+
+    // Check for errors
+    if (curl_errno($ch)) {
+      $error = curl_error($ch);
+      error_log("cURL Error: $error");
+    }
+    // Log response
+    error_log("cURL Response: " . print_r($response, true));
+
+    curl_close($ch);
+    return $response;
+  }
+
+
+  function processPayment($contact, $orderNo, $config)
+  {
+    // Example code for payment processing
+    $phone = "254{$contact}"; // Format phone number
+    $amount = 1; // Example amount, replace with actual amount
+    $access_token_url = ($config['env'] == "live") ? "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials" : "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials";
+    $credentials = base64_encode($config['key'] . ':' . $config['secret']);
+    $access_token_response = $this->curlRequest($access_token_url, ['Authorization: Basic ' . $credentials]);
+    error_log("access_token_response = " . $access_token_response);
+
+    $access_token_data = json_decode($access_token_response, true);
+    error_log("access_token = " . $access_token_data);
+    $token = isset($access_token_data['access_token']) ? $access_token_data['access_token'] : null;
+    error_log("token = " . $token);
+    if ($token) {
+      // Generate password
+      $timestamp = date("YmdHis");
+      $password = base64_encode($config['BusinessShortCode'] . $config['passkey'] . $timestamp);
+
+      // Prepare request data
+      $data = array(
+        "BusinessShortCode" => $config['BusinessShortCode'],
+        "Password" => $password,
+        "Timestamp" => $timestamp,
+        "TransactionType" => $config['TransactionType'],
+        "Amount" => $amount,
+        "PartyA" => $phone,
+        "PartyB" => $config['BusinessShortCode'],
+        "PhoneNumber" => $phone,
+        "CallBackURL" => $config['CallBackURL'],
+        "AccountReference" => $config['AccountReference'],
+        "TransactionDesc" => $config['TransactionDesc'],
+      );
+
+      $data_string = json_encode($data);
+
+      // Make payment request
+      $endpoint = ($config['env'] == "live") ? "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest" : "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
+      $headers = array(
+        'Authorization: Bearer ' . $token,
+        'Content-Type: application/json',
+      );
+      $payment_response = $this->curlRequest($endpoint, $headers, $data_string);
+
+      // Handle payment response
+      $payment_result = json_decode($payment_response, true);
+      error_log("payment_result = " . $payment_result);
+      if ($payment_result && $payment_result['ResponseCode'] === "0") {
+        // Payment successful
+        $MerchantRequestID = $payment_result['MerchantRequestID'];
+        $CheckoutRequestID = $payment_result['CheckoutRequestID'];
+
+        // Insert transaction details into the database
+        $sql = "INSERT INTO `stk_transactions`(`order_no`, `amount`, `phone`, `CheckoutRequestID`, `MerchantRequestID`) VALUES ('$orderNo', '$amount', '$phone', '$CheckoutRequestID', '$MerchantRequestID')";
+        $this->freerun($sql);
+
+        return true;
+      } else {
+        // Payment failed
+        return false;
+      }
+    } else {
+      // Access token not obtained
+      return false;
+    }
+  }
+
+  function get_cart_total()
+  {
+    $total = 0;
+
+    // Calculate the total value of items in the cart
+    $query = "SELECT 
+                SUM(cart.quantity * art.price) AS art_total,
+                SUM(cart.quantity * exhibit.price) AS exhibit_total
+              FROM cart 
+              LEFT JOIN art ON cart.art_id = art.id 
+              LEFT JOIN exhibit ON cart.exhibit_id = exhibit.id 
+              WHERE cart.user_id = ?";
+    $stmt = $this->connectionstring->prepare($query);
+    $stmt->bind_param("i", $this->user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $art_total = $row['art_total'] ?? 0;
+    $exhibit_total = $row['exhibit_total'] ?? 0;
+    $total = $art_total + $exhibit_total;
+
+    return $total;
+  }
+
+
+  public function createOrderFromCart($contact, $config)
+  {
+    // Select cart items for the user
+    $cart_items = $this->selectwhere('cart', 'user_id', '=', $this->user_id);
+
+    // Debug statement
+    error_log("Selected cart items: " . $contact);
+
+    // Check if cart items exist
+    if ($cart_items) {
+      // Begin a transaction
+      $this->connectionstring->begin_transaction();
+
+      // Flag to track overall success of all orders
+      $success = true;
+      $total_amount = 0; // Initialize total amount
+
+      // Array to store payment information for each item
+      $payment_info = array();
+
+      while ($cart_item = $cart_items->fetch_assoc()) {
+        // Extract cart item details
+        $exhibit_id = $cart_item['exhibit_id'];
+        $art_id = $cart_item['art_id'];
+        $quantity = $cart_item['quantity'];
+
+        // Calculate the price based on whether it's an exhibit or an art
+        if ($exhibit_id !== null) {
+          // If it's an exhibit, fetch its price
+          $exhibit_price_result = $this->selectwhere('exhibit', 'id', '=', $exhibit_id);
+          $exhibit_price_row = $exhibit_price_result->fetch_assoc();
+          $price = $exhibit_price_row['price'];
+        } elseif ($art_id !== null) {
+          // If it's an art, fetch its price
+          $art_price_result = $this->selectwhere('art', 'id', '=', $art_id);
+          $art_price_row = $art_price_result->fetch_assoc();
+          $price = $art_price_row['price'];
+        }
+
+        // Calculate item total and accumulate to total amount
+        $item_total = $price * $quantity;
+        $total_amount += $item_total;
+
+        // Store payment information for this item
+        $payment_info[] = array(
+          'order_id' => null, // Placeholder for order ID
+          'amount' => $item_total,
+        );
+      }
+
+      // Process payment for the total amount
+      $payment_result = $this->processPayment($contact, $total_amount, $config);
+
+      // Debug statement
+      error_log("Payment result: $payment_result");
+
+      if ($payment_result) {
+        // Payment successful, now create orders
+        foreach ($payment_info as &$payment_item) {
+          // Insert order into database
+          $stmt = $this->connectionstring->prepare("INSERT INTO `order` (user_id, exhibit_id, art_id, quantity, price, paid) 
+                    VALUES (?, ?, ?, ?, ?, 0)"); // Set paid flag to 1
+          $stmt->bind_param("iiidi", $this->user_id, $exhibit_id, $art_id, $quantity, $price);
+          $stmt->execute();
+
+          // Check if order insertion was successful
+          if ($stmt->affected_rows === 1) {
+            $payment_item['order_id'] = $this->connectionstring->insert_id;
+          } else {
+            // Order insertion failed
+            $success = false;
+            break;
+          }
+        }
+
+        // If all orders were created successfully, remove items from the cart
+        if ($success) {
+          // Remove items from the cart
+          $delete_cart_items_query = "DELETE FROM `cart` WHERE user_id = ?";
+          $delete_cart_items_stmt = $this->connectionstring->prepare($delete_cart_items_query);
+          $delete_cart_items_stmt->bind_param("i", $this->user_id);
+          $delete_cart_items_stmt->execute();
+
+          $this->connectionstring->commit();
+          return "All orders created successfully. Cart items removed.";
+        } else {
+          $this->connectionstring->rollback();
+          return "Error creating orders";
+        }
+      } else {
+        // Payment failed
+        $this->connectionstring->rollback();
+        return "Payment processing failed";
+      }
+    } else {
+      return "No items in the cart";
+    }
+  }
 }

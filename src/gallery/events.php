@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../../assets/css/dashboard.css" />
   <link rel="icon" type="image/x-icon" href="../../assets/images/moon.png" />
-  <title>Order Summary</title>
+  <title>Events Summary</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -54,6 +54,19 @@
     td:last-child {
       text-align: center;
     }
+
+    .delete-btn {
+      background-color: #ff6347;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .delete-btn:hover {
+      background-color: #ff3b20;
+    }
   </style>
 </head>
 
@@ -73,34 +86,21 @@
       <a href="art_upload.php">Upload Art</a>
       <a href="/art/src/gallery/dashboard.php">Home</a>
     </nav>
+
   </header>
 
-  <h2>Order Summary</h2>
+  <h2>Exhibit Report</h2>
   <table>
     <thead>
       <tr>
-        <th>Order ID</th>
-        <?php
-        // Check if either 'exhibitid' or 'artid' parameter is set in the URL
-        if (isset($_GET['exhibitid'])) {
-          // Sanitize the input to prevent SQL injection or other attacks
-          $exhibit_id = filter_input(INPUT_GET, 'exhibitid', FILTER_SANITIZE_NUMBER_INT);
-          // If 'exhibitid' is set, display Exhibit ID column
-          echo "<th>Exhibit ID</th>";
-        } elseif (isset($_GET['artid'])) {
-          // Sanitize the input to prevent SQL injection or other attacks
-          $art_id = filter_input(INPUT_GET, 'artid', FILTER_SANITIZE_NUMBER_INT);
-          // If 'artid' is set, display Art ID column
-          echo "<th>Art ID</th>";
-        } else {
-          // If neither 'exhibitid' nor 'artid' parameter is set, redirect to the dashboard
-          header("Location: /art/src/dashboard.php");
-          exit(); // Stop further execution
-        }
-        ?>
+        <th>Event ID</th>
+        <th>Gallery ID</th>
+        <th>Name</th>
+        <th>Event Image</th>
+        <th>Description</th>
         <th>Price</th>
-        <th>Paid</th>
-        <th>Date</th>
+        <th>Date Created</th>
+        <th>Action</th>
       </tr>
     </thead>
     <tbody>
@@ -114,32 +114,35 @@
 
       // Create an instance of your service class
       $services = new Services($user_id);
-      if ($exhibit_id) {
-        $order_art = $services->get_order_events_by_gallery($exhibit_id);
-      } elseif ($art_id) {
-        $order_art = $services->get_order_art_by_gallery($art_id);
-      }
+      $gallery_result = $services->selectwhere('gallery', 'user_id', '=', $user_id);
+      $gallery = mysqli_fetch_assoc($gallery_result);
+      $result = $services->selectwhere('exhibit', 'gallery_id', '=', $gallery['id']);
 
       // Check if there is data available
-      if ($order_art) {
+      while ($event = mysqli_fetch_assoc($result)) {
         // Output data in a table row
         echo "<tr>";
-        echo "<td>" . $order_art['id'] . "</td>";
-        if (isset($exhibit_id)) {
-          echo "<td>" . $order_art['exhibit_id'] . "</td>";
-        } elseif (isset($art_id)) {
-          echo "<td>" . $order_art['art_id'] . "</td>";
-        }
-        echo "<td>$" . $order_art['price'] . "</td>";
-        echo "<td>" . ($order_art['paid'] == 1 ? 'Yes' : 'No') . "</td>";
-        echo "<td>" . $order_art['date_created'] . "</td>";
+        echo "<td>" . $event['id'] . "</td>";
+        echo "<td>" . $event['gallery_id'] . "</td>";
+        echo "<td>" . $event['name'] . "</td>";
+        echo "<td><img src='" . $event['event_image_url'] . "' alt='Event Image' style='max-width: 100px; max-height: 100px;'></td>";
+        echo "<td>" . $event['description'] . "</td>";
+        echo "<td>$" . $event['price'] . "</td>";
+        echo "<td>" . $event['date_created'] . "</td>";
+        echo "<td><button class='delete-btn' onclick='confirmDelete(" . $event['id'] . ")'>Delete</button></td>";
         echo "</tr>";
-      } else {
-        echo "<tr><td colspan='5'>No data available</td></tr>";
       }
       ?>
     </tbody>
   </table>
+  <script>
+    function confirmDelete(exhibitId) {
+      if (confirm("Are you sure you want to delete this event?")) {
+        window.location.href = "delete_event.php?id=" + exhibitId; // Redirect to delete script with art ID
+      }
+    }
+  </script>
+
 </body>
 
 </html>

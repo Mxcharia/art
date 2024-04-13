@@ -305,20 +305,22 @@ $cart_details = $service->selectwhere('cart', 'user_id', '=', $user_id);
     }
 
     function deleteFromCart(cartId) {
-      var xhr = new XMLHttpRequest();
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
-          if (xhr.status === 200) {
-            // Update UI if request is successful
-            location.reload();
-          } else {
-            console.error('Error: ' + xhr.status);
+      if (confirm("Are you sure you want to delete this item from your cart?")) {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+              // Update UI if request is successful
+              location.reload();
+            } else {
+              console.error('Error: ' + xhr.status);
+            }
           }
-        }
-      };
-      xhr.open('POST', 'cart.php', true);
-      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-      xhr.send('cart_id=' + cartId + '&action=delete');
+        };
+        xhr.open('POST', 'cart.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.send('cart_id=' + cartId + '&action=delete');
+      }
     }
 
     function checkout() {

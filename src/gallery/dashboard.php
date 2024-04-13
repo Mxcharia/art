@@ -109,6 +109,8 @@ $gallery = mysqli_fetch_assoc($result);
   </div>
   <nav class="nav-links">
     <a href="/art/src/logout.php">Logout</a>
+    <a href="events.php">Event Reports</a>
+    <a href="arts.php">Art Reports</a>
     <a href="event_upload.php">New Event</a>
     <a href="art_upload.php">Upload Art</a>
     <a href="/art/src/gallery/dashboard.php">Home</a>

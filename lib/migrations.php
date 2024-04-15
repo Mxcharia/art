@@ -115,6 +115,7 @@ class Migration extends Mysql
             user_id INT(6) UNSIGNED,
             exhibit_id INT(6) UNSIGNED,
             art_id INT(6) UNSIGNED,
+            uuid VARCHAR(50),
             quantity INT,
             price INT,
             paid BOOLEAN,

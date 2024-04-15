@@ -185,7 +185,7 @@ class Mysql extends Db_config
   }
   function updateOrderStatus($status, $orderNo)
   {
-    $stmt = $this->connectionstring->prepare("UPDATE `order` SET paid = ? WHERE id = ?");
+    $stmt = $this->connectionstring->prepare("UPDATE `order` SET paid = ? WHERE uuid = ?");
     $stmt->bind_param("ss", $status, $orderNo);
     $result = $stmt->execute();
     $stmt->close();

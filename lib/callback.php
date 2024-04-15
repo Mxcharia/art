@@ -20,18 +20,19 @@ file_put_contents('/srv/http/art/uploads/transaction_log', $data, FILE_APPEND); 
 
 $mysql = new Mysql();
 $result = $mysql->selectwhere('stk_transactions', 'MerchantRequestID', '=', $res['Body']['stkCallback']['MerchantRequestID']);
-$stk_transaction = mysqli_fetch_assoc($result);
-$orderNo = $stk_transaction['order_no'];
-if ($res['Body']['stkCallback']['ResultCode'] == "0") {
-  $rs = $mysql->updateOrderStatus(1, $orderNo);
-  unset($_SESSION['orderNo']);
-} else {
-  $rs = $mysql->updateOrderStatus(0, $orderNo);
-  unset($_SESSION['orderNo']);
-}
+while ($stk_transaction = mysqli_fetch_assoc($result)) {
+  $orderNo = $stk_transaction['order_no'];
+  if ($res['Body']['stkCallback']['ResultCode'] == "0") {
+    $rs = $mysql->updateOrderStatus(1, $orderNo);
+    unset($_SESSION['orderNo']);
+  } else {
+    $rs = $mysql->updateOrderStatus(0, $orderNo);
+    unset($_SESSION['orderNo']);
+  }
 
-if ($rs) {
-  file_put_contents('/srv/http/art/uploads/error_log', "Records Inserted\n", FILE_APPEND);
-} else {
-  file_put_contents('/srv/http/art/uploads/error_log', "Failed to insert Records\n", FILE_APPEND);
+  if ($rs) {
+    file_put_contents('/srv/http/art/uploads/error_log', "Records Inserted\n", FILE_APPEND);
+  } else {
+    file_put_contents('/srv/http/art/uploads/error_log', "Failed to insert Records\n", FILE_APPEND);
+  }
 }

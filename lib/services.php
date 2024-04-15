@@ -377,7 +377,7 @@ class Services extends Mysql
   }
 
 
-  function processPayment($contact, $orderNo, $config)
+  function processPayment($contact, $amount, $orderNo, $config)
   {
     // Example code for payment processing
     $phone = "254{$contact}"; // Format phone number
@@ -518,9 +518,9 @@ class Services extends Mysql
           'amount' => $item_total,
         );
       }
-
+      $uuid = uniqid();
       // Process payment for the total amount
-      $payment_result = $this->processPayment($contact, $total_amount, $config);
+      $payment_result = $this->processPayment($contact, $total_amount, $uuid, $config);
 
       // Debug statement
       error_log("Payment result: $payment_result");
@@ -529,9 +529,9 @@ class Services extends Mysql
         // Payment successful, now create orders
         foreach ($payment_info as &$payment_item) {
           // Insert order into database
-          $stmt = $this->connectionstring->prepare("INSERT INTO `order` (user_id, exhibit_id, art_id, quantity, price, paid) 
-                    VALUES (?, ?, ?, ?, ?, 0)"); // Set paid flag to 1
-          $stmt->bind_param("iiidi", $this->user_id, $exhibit_id, $art_id, $quantity, $price);
+          $stmt = $this->connectionstring->prepare("INSERT INTO `order` (user_id, exhibit_id, art_id, quantity, price, uuid,paid) 
+                    VALUES (?, ?, ?, ?, ?,? , 0)"); // Set paid flag to 1
+          $stmt->bind_param("iiidis", $this->user_id, $exhibit_id, $art_id, $quantity, $price, $uuid);
           $stmt->execute();
 
           // Check if order insertion was successful
